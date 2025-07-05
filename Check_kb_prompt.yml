@@ -2,6 +2,8 @@
 - name: Prompt for KB number and check if it's installed
   hosts: all  # or 'winlab' if that's your group
   gather_facts: false
+  collections:
+    - ansible.windows
 
   vars_prompt:
     - name: kb_id
