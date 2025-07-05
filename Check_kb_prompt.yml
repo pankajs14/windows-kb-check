@@ -1,31 +1,24 @@
 ---
-- name: Check for KB patch on Windows
-  hosts: windows
-  gather_facts: no
+- name: Prompt for KB number and check if it's installed
+  hosts: all  # or 'winlab' if that's your group
+  gather_facts: false
 
   vars_prompt:
-    - name: kb_number
+    - name: kb_id
       prompt: "Enter the KB number to check (e.g., KB5011497)"
       private: no
 
   tasks:
+    - name: Get installed hotfixes
+      win_hotfix_facts:
+      register: update_facts
 
-    - name: Get the hostname
-      win_hostname:
-      register: host_info
-
-    - name: Check if KB is installed
-      win_shell: "Get-HotFix -Id {{ kb_number }}"
-      register: hotfix_check
-      ignore_errors: yes
-
-    - name: Show result if KB is found
+    - name: KB found
       debug:
-        msg: "✅ {{ host_info.hostname }} has {{ kb_number }}"
-      when: hotfix_check.rc == 0
+        msg: "{{ inventory_hostname }}: ✅ KB {{ kb_id }} is installed"
+      when: kb_id in update_facts.hotfixes | map(attribute='HotFixID') | list
 
-    - name: Show result if KB is NOT found
+    - name: KB not found
       debug:
-        msg: "❌ {{ host_info.hostname }} does NOT have {{ kb_number }}"
-      when: hotfix_check.rc != 0
-
+        msg: "{{ inventory_hostname }}: ❌ KB {{ kb_id }} is NOT installed"
+      when: kb_id not in update_facts.hotfixes | map(attribute='HotFixID') | list
