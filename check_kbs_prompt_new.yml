@@ -1,13 +1,13 @@
 ---
 - name: Check if specific KB is installed on Windows
-  hosts: windows
+  hosts: winlab
   gather_facts: no
   vars:
-    kb_to_check: ""
+    kb_id: ""
 
   tasks:
-    - name: Get installed hotfixes using PowerShell
-      win_shell: Get-HotFix | Select-Object -ExpandProperty HotFixID
+    - name: Get list of all installed hotfixes
+      win_shell: "(Get-HotFix).HotFixID"
       register: hotfix_list
 
     - name: Show all installed KBs (for reference)
@@ -16,12 +16,10 @@
 
     - name: Check if KB is installed
       set_fact:
-        kb_installed: "{{ kb_to_check in hotfix_list.stdout_lines }}"
+        kb_found: "{{ kb_id in hotfix_list.stdout_lines }}"
 
     - name: Display result
       debug:
-        msg: >
-          KB {{ kb_to_check }} is
-          {% if kb_installed %} ✅ INSTALLED
-          {% else %} ❌ NOT INSTALLED
-          {% endif %}
+        msg: >-
+          KB {{ kb_id }} is
+          {{ '✅ INSTALLED' if kb_found else '❌ NOT INSTALLED' }}
