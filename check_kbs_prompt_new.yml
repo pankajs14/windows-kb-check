@@ -1,6 +1,6 @@
 ---
 - name: Check if specific KB is installed on Windows
-  hosts: winlab
+  hosts: windows
   gather_facts: no
   vars:
     kb_id: ""
