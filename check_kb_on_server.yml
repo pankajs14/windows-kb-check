@@ -1,0 +1,21 @@
+---
+- name: Check if specific KB is installed on sepcified Windows host
+  hosts: "{{ server_name }}"
+  gather_facts: no
+  vars:
+    kb_id: ""
+    server_name: ""  # Specify the server name or IP address
+
+  tasks:
+    - name: Check if KB is installed
+      win_shell: |
+       Get-HotFix | where-object {$_.HotFixID -eq "{{ kb_id }}"} | Select-Object -ExpandProperty HotFixID
+      register: kb_check
+
+    - name: Display result
+      debug:
+        msg: >-
+          server: {{ server_name }} - KB {{ kb_id }} is
+          {{ '✅ INSTALLED' if kb_check.stdout == kb_id else '❌ NOT INSTALLED' }}
+
+   
