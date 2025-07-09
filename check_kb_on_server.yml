@@ -16,6 +16,6 @@
       debug:
         msg: >-
           server: {{ server_name }} - KB {{ kb_id }} is
-          {{ '✅ INSTALLED' if kb_check.stdout == kb_id else '❌ NOT INSTALLED' }}
+          {{ '✅ INSTALLED' if kb_check == kb_id else '❌ NOT INSTALLED' }}
 
    
