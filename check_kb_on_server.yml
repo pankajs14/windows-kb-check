@@ -16,6 +16,9 @@
       debug:
         msg: >-
           server: {{ server_name }} - KB {{ kb_id }} is
-          {{ '✅ INSTALLED' if kb_check == kb_id else '❌ NOT INSTALLED' }}
+          {{ '✅ INSTALLED' if kb_check.stdout | trim == kb_id else '❌ NOT INSTALLED' }}
+    - name: Show all installed KBs (for reference) 
+      win_shell: "(Get-HotFix).HotFixID"
+      register: hotfix_list
 
    
