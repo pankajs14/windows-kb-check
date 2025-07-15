@@ -1,0 +1,20 @@
+---
+- name: Prompt for Windows server (from inventory) and show uptime
+  hosts: "{{ target_server }}"
+  gather_facts: false
+
+  vars_prompt:
+    - name: "target_server"
+      prompt: "Enter the Windows server hostname or IP (must exist in inventory group 'windows')"
+      private: no
+
+  tasks:
+    - name: Get system uptime via PowerShell
+      win_shell: |
+        $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+        "$env:COMPUTERNAME uptime: $($uptime.Days) days, $($uptime.Hours) hrs, $($uptime.Minutes) mins"
+      register: uptime_output
+
+    - name: Display uptime
+      debug:
+        msg: "{{ uptime_output.stdout }}"
