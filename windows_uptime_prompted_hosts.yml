@@ -1,0 +1,33 @@
+---
+- name: Prompt for Windows servers and show their uptime
+  hosts: all
+  gather_facts: false
+
+  vars_prompt:
+    - name: "extra_hosts"
+      prompt: "Enter comma-separated Windows server IPs or hostnames"
+      private: no
+
+  pre_tasks:
+    - name: Parse and add each entered host to dynamic inventory (winlab group)
+      add_host:
+        name: "{{ item }}"
+        groups: winlab
+        ansible_user: "{{ lookup('env', 'WIN_USER') }}"
+        ansible_password: "{{ lookup('env', 'WIN_PASS') }}"
+        ansible_connection: winrm
+        ansible_port: 5985
+        ansible_winrm_transport: ntlm
+        ansible_winrm_server_cert_validation: ignore
+      loop: "{{ extra_hosts.split(',') }}"
+
+  tasks:
+    - name: Display uptime on all selected Windows hosts
+      win_shell: |
+        $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+        "$env:COMPUTERNAME uptime: $($uptime.Days) days, $($uptime.Hours) hrs, $($uptime.Minutes) mins"
+      register: uptime_output
+
+    - name: Show formatted uptime result
+      debug:
+        msg: "{{ inventory_hostname }}: {{ uptime_output.stdout }}"
