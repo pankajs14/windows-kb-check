@@ -1,6 +1,6 @@
 ---
 - name: Get uptime from a specific Windows server in inventory
-  hosts: "{{ target_server }}"
+  hosts: all
   gather_facts: false
 
   tasks:
@@ -9,6 +9,7 @@
         $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
         "$env:COMPUTERNAME uptime: $($uptime.Days) days, $($uptime.Hours) hrs, $($uptime.Minutes) mins"
       register: uptime_output
+      when: inventory_hostname == target_server
 
     - name: Show uptime
       debug:
